@@ -1,0 +1,12 @@
+# ~/.bashrc
+
+case $- in
+    *i*) ;;
+      *) return ;;
+esac
+
+for f in "$HOME"/.config/bash/*.bash; do
+    [[ -r "$f" ]] && source "$f"
+done
+
+[[ -r "$HOME/.bashrc.local" ]] && source "$HOME/.bashrc.local"

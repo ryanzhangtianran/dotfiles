@@ -4,7 +4,9 @@ format = """
 [](red)\
 $os\
 $username\
-[](bg:peach fg:red)\
+[](bg:mauve fg:red)\
+$hostname\
+[](bg:peach fg:mauve)\
 $directory\
 [](bg:yellow fg:peach)\
 $git_branch\
@@ -21,6 +23,7 @@ $haskell\
 $python\
 [](fg:green bg:sapphire)\
 $conda\
+${env_var.proxy}\
 [](fg:sapphire bg:lavender)\
 $time\
 [ ](fg:lavender)\
@@ -28,7 +31,7 @@ $cmd_duration\
 $line_break\
 $character"""
 
-palette = 'catppuccin_mocha'
+palette = 'catppuccin_frappe'
 
 [os]
 disabled = false
@@ -39,6 +42,7 @@ Windows = ""
 Ubuntu = "󰕈"
 SUSE = ""
 Raspbian = "󰐿"
+RockyLinux = ""
 Mint = "󰣭"
 Macos = "󰀵"
 Manjaro = ""
@@ -56,11 +60,17 @@ Debian = "󰣚"
 Redhat = "󱄛"
 RedHatEnterprise = "󱄛"
 
+[hostname]
+ssh_only = false
+style = "bg:mauve fg:crust"
+format = '[ $hostname ]($style)'
+trim_at = "."
+
 [username]
 show_always = true
 style_user = "bg:red fg:crust"
 style_root = "bg:red fg:crust"
-format = '[ $user]($style)'
+format = '[ $user ]($style)'
 
 [directory]
 style = "bg:peach fg:crust"
@@ -139,6 +149,10 @@ symbol = "  "
 style = "fg:crust bg:sapphire"
 format = '[$symbol$environment ]($style)'
 ignore_base = false
+
+[env_var.proxy]
+variable = "http_proxy"
+format = '[](fg:sapphire bg:teal)[  ](fg:crust bg:teal)[](fg:teal bg:sapphire)'
 
 [time]
 disabled = false

@@ -1,0 +1,7 @@
+{{/* CCI containers are hostnamed app-<uid>-<replicaset>-<pod>. There the proxy
+     is set globally in /etc/environment by the container bootstrap script, and
+     the proxy() helper would point http_proxy at PROXY_PORT (the SOCKS port),
+     so it is not managed there. Every other machine keeps it. */}}
+{{ if hasPrefix "app-" .chezmoi.hostname }}
+.config/bash/20-functions.bash
+{{ end }}

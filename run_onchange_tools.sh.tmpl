@@ -7,8 +7,8 @@ LOCAL_BIN="${HOME}/.local/bin"
 NVM_DIR="${NVM_DIR:-${HOME}/.nvm}"
 FZF_DIR="${XDG_DATA_HOME:-${HOME}/.local/share}/fzf"
 
-mkdir -p "$LOCAL_BIN" "$HOME/bin" "$(dirname "$FZF_DIR")"
-export PATH="$LOCAL_BIN:$HOME/bin:$HOME/.atuin/bin:$PATH"
+mkdir -p "$LOCAL_BIN" "$(dirname "$FZF_DIR")"
+export PATH="$LOCAL_BIN:$HOME/.atuin/bin:$PATH"
 export NVM_DIR
 
 log() {

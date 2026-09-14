@@ -1,5 +1,5 @@
 # User binaries. Keep this order in sync with the chezmoi installer script.
-for user_bin_dir in "$HOME/.atuin/bin" "$HOME/bin" "$HOME/.local/bin"; do
+for user_bin_dir in "$HOME/.atuin/bin" "$HOME/.local/bin"; do
     case ":$PATH:" in
         *":$user_bin_dir:"*) ;;
         *) export PATH="$user_bin_dir:$PATH" ;;

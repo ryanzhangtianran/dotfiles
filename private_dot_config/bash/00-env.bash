@@ -1,8 +1,11 @@
-# User binaries
-case ":$PATH:" in
-    *":$HOME/.local/bin:"*) ;;
-    *) export PATH="$HOME/.local/bin:$PATH" ;;
-esac
+# User binaries. Keep this order in sync with the chezmoi installer script.
+for user_bin_dir in "$HOME/.atuin/bin" "$HOME/bin" "$HOME/.local/bin"; do
+    case ":$PATH:" in
+        *":$user_bin_dir:"*) ;;
+        *) export PATH="$user_bin_dir:$PATH" ;;
+    esac
+done
+unset user_bin_dir
 
 export PYTHONNOUSERSITE=1
 export NVM_DIR="$HOME/.nvm"

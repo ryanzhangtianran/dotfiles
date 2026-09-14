@@ -2,7 +2,7 @@
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-for conda_root in "$HOME/Miniforge" "$HOME/miniforge3" "$HOME/miniforge"; do
+for conda_root in /opt/conda "$HOME/Miniforge" "$HOME/miniforge3" "$HOME/miniforge"; do
 
     [[ -x "$conda_root/bin/conda" ]] || continue
 

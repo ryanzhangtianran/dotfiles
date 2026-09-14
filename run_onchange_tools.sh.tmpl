@@ -1,0 +1,201 @@
+{{- if eq .chezmoi.os "linux" -}}
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+LOCAL_BIN="${HOME}/.local/bin"
+NVM_DIR="${NVM_DIR:-${HOME}/.nvm}"
+FZF_DIR="${XDG_DATA_HOME:-${HOME}/.local/share}/fzf"
+
+mkdir -p "$LOCAL_BIN" "$HOME/bin" "$(dirname "$FZF_DIR")"
+export PATH="$LOCAL_BIN:$HOME/bin:$HOME/.atuin/bin:$PATH"
+export NVM_DIR
+
+log() {
+    printf '[dotfiles] %s\n' "$*"
+}
+
+have() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+for required_command in curl git python3 tar; do
+    if ! have "$required_command"; then
+        log "Missing base command: $required_command"
+        log 'This installer never uses apt or sudo; add the command to the base image first.'
+        exit 1
+    fi
+done
+
+if ! have chezmoi; then
+    log 'Installing chezmoi into ~/.local/bin.'
+    sh -c "$(curl -fsLS https://get.chezmoi.io)" -- -b "$LOCAL_BIN"
+fi
+
+if ! have starship; then
+    log 'Installing Starship into ~/.local/bin.'
+    curl -fsSL https://starship.rs/install.sh |
+        sh -s -- --yes --bin-dir "$LOCAL_BIN"
+fi
+
+if ! have zoxide; then
+    log 'Installing zoxide.'
+    curl -fsSL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh |
+        sh
+fi
+
+install_atuin() {
+    local machine asset_pattern release_json asset_url temp_dir candidate
+
+    machine="$(uname -m)"
+    case "$machine" in
+        # Use musl so the binary also runs on Ubuntu 22.04 / glibc 2.35.
+        x86_64 | amd64) asset_pattern='atuin-x86_64-unknown-linux-musl.tar.gz$' ;;
+        aarch64 | arm64) asset_pattern='atuin-aarch64-unknown-linux-musl.tar.gz$' ;;
+        *)
+            log "Unsupported architecture for Atuin: $machine"
+            return 1
+            ;;
+    esac
+
+    temp_dir="$(mktemp -d)"
+    release_json="$temp_dir/release.json"
+    curl -fsSL \
+        https://api.github.com/repos/atuinsh/atuin/releases/latest \
+        -o "$release_json"
+
+    asset_url="$(python3 - "$release_json" "$asset_pattern" <<'PY'
+import json
+import re
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as release_file:
+    release = json.load(release_file)
+
+pattern = re.compile(sys.argv[2])
+for asset in release.get("assets", []):
+    url = asset.get("browser_download_url", "")
+    if pattern.search(url):
+        print(url)
+        break
+else:
+    raise SystemExit("No matching Atuin release asset found")
+PY
+)"
+
+    curl -fsSL "$asset_url" -o "$temp_dir/atuin.tar.gz"
+    tar -xzf "$temp_dir/atuin.tar.gz" -C "$temp_dir"
+    candidate="$(find "$temp_dir" -type f -name atuin -print -quit)"
+    if [[ -z "$candidate" ]]; then
+        log 'Atuin archive did not contain an atuin binary.'
+        return 1
+    fi
+    install -m 0755 "$candidate" "$LOCAL_BIN/atuin"
+    rm -rf "$temp_dir"
+}
+
+if ! have atuin || ! atuin --version >/dev/null 2>&1; then
+    log 'Installing Atuin into ~/.local/bin.'
+    install_atuin
+fi
+
+if ! have uv; then
+    log 'Installing uv and uvx into ~/.local/bin.'
+    curl -LsSf https://astral.sh/uv/install.sh |
+        env UV_INSTALL_DIR="$LOCAL_BIN" UV_NO_MODIFY_PATH=1 sh
+fi
+
+if [[ ! -s "$NVM_DIR/nvm.sh" ]]; then
+    log 'Installing NVM v0.40.7.'
+    PROFILE=/dev/null NVM_DIR="$NVM_DIR" bash -c \
+        'curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.7/install.sh | bash'
+fi
+
+if ! have fzf || ! fzf --bash >/dev/null 2>&1; then
+    log 'Installing a current fzf into ~/.local/bin.'
+    if [[ -d "$FZF_DIR/.git" ]]; then
+        git -C "$FZF_DIR" pull --ff-only
+    else
+        if [[ -e "$FZF_DIR" ]]; then
+            fzf_backup="${FZF_DIR}.backup.$(date +%Y%m%d%H%M%S)"
+            log "Moving existing fzf directory to $fzf_backup."
+            mv "$FZF_DIR" "$fzf_backup"
+        fi
+        git clone --depth 1 https://github.com/junegunn/fzf.git "$FZF_DIR"
+    fi
+    "$FZF_DIR/install" --bin
+    ln -sfn "$FZF_DIR/bin/fzf" "$LOCAL_BIN/fzf"
+fi
+
+install_carapace() {
+    local machine asset_pattern release_json asset_url temp_dir candidate
+
+    machine="$(uname -m)"
+    case "$machine" in
+        x86_64 | amd64) asset_pattern='linux_amd64.tar.gz$' ;;
+        aarch64 | arm64) asset_pattern='linux_arm64.tar.gz$' ;;
+        *)
+            log "Unsupported architecture for Carapace: $machine"
+            return 1
+            ;;
+    esac
+
+    temp_dir="$(mktemp -d)"
+    release_json="$temp_dir/release.json"
+    curl -fsSL \
+        https://api.github.com/repos/carapace-sh/carapace-bin/releases/latest \
+        -o "$release_json"
+
+    asset_url="$(python3 - "$release_json" "$asset_pattern" <<'PY'
+import json
+import re
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as release_file:
+    release = json.load(release_file)
+
+pattern = re.compile(sys.argv[2])
+for asset in release.get("assets", []):
+    url = asset.get("browser_download_url", "")
+    if pattern.search(url):
+        print(url)
+        break
+else:
+    raise SystemExit("No matching Carapace release asset found")
+PY
+)"
+
+    curl -fsSL "$asset_url" -o "$temp_dir/carapace.tar.gz"
+    tar -xzf "$temp_dir/carapace.tar.gz" -C "$temp_dir"
+    candidate="$(find "$temp_dir" -type f -name carapace -print -quit)"
+    if [[ -z "$candidate" ]]; then
+        log 'Carapace archive did not contain a carapace binary.'
+        return 1
+    fi
+    install -m 0755 "$candidate" "$LOCAL_BIN/carapace"
+    rm -rf "$temp_dir"
+}
+
+if ! have carapace; then
+    log 'Installing Carapace into ~/.local/bin.'
+    install_carapace
+fi
+
+hash -r 2>/dev/null || true
+log 'Shell tool installation is complete.'
+for tool in chezmoi starship zoxide atuin uv fzf carapace; do
+    if have "$tool"; then
+        printf '[dotfiles] %-10s %s\n' "$tool" "$(command -v "$tool")"
+    else
+        printf '[dotfiles] %-10s MISSING\n' "$tool"
+        exit 1
+    fi
+done
+
+if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+    printf '[dotfiles] %-10s %s\n' nvm "$NVM_DIR/nvm.sh"
+else
+    printf '[dotfiles] %-10s MISSING\n' nvm
+    exit 1
+fi
+{{- end }}

@@ -1,0 +1,23 @@
+# ~/.zshrc (macOS only; Linux uses bash)
+
+for brew in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+    [[ -x "$brew" ]] && eval "$("$brew" shellenv)" && break
+done
+unset brew
+
+# Shared with bash: PATH/env, aliases
+for f in 00-env 10-alias; do
+    [[ -r "$HOME/.config/bash/$f.bash" ]] && source "$HOME/.config/bash/$f.bash"
+done
+unset f
+
+autoload -Uz compinit && compinit
+command -v carapace >/dev/null && source <(carapace _carapace zsh)
+
+command -v fnm >/dev/null && eval "$(fnm env --use-on-cd --shell zsh)"
+command -v fzf >/dev/null && source <(fzf --zsh)
+command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
+command -v atuin >/dev/null && eval "$(atuin init zsh --disable-ai)"
+command -v starship >/dev/null && eval "$(starship init zsh)"
+
+[[ -r "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"

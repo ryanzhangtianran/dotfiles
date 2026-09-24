@@ -1,0 +1,17 @@
+# ~/.config/systemd/user/xray.service
+# User-level Xray, no root. The config holds server secrets and is kept out
+# of the dotfiles repo: put it at ~/.config/xray/config.json by hand.
+
+[Unit]
+Description=Xray (user)
+Documentation=https://github.com/XTLS/Xray-core
+ConditionPathExists=%h/.config/xray/config.json
+
+[Service]
+Environment=XRAY_LOCATION_ASSET=%h/.local/share/xray
+ExecStart=%h/.local/bin/xray run -config %h/.config/xray/config.json
+Restart=on-failure
+RestartPreventExitStatus=23
+
+[Install]
+WantedBy=default.target

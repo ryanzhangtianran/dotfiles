@@ -1,0 +1,68 @@
+{{- /* Single-binary shell tools, latest GitHub releases into ~/.local/bin.
+       refreshPeriod re-downloads weekly; versioned asset names are resolved
+       through the GitHub API, cached for gitHub.refreshPeriod (.chezmoi.toml.tmpl). */ -}}
+{{- if ne .machine "mac" -}}
+
+{{- /* amd64/arm64 for Go-style names, x86_64/aarch64 for Rust triples.
+       musl builds so they also run on old glibc (Ubuntu 22.04). */ -}}
+{{- $go := .chezmoi.arch -}}
+{{- $rust := get (dict "amd64" "x86_64" "arm64" "aarch64") .chezmoi.arch -}}
+{{- $latest := "https://github.com/%s/releases/latest/download/%s" }}
+
+[".local/bin/starship"]
+    type = "archive-file"
+    url = "{{ printf $latest "starship/starship" (printf "starship-%s-unknown-linux-musl.tar.gz" $rust) }}"
+    path = "starship"
+    executable = true
+    refreshPeriod = "168h"
+
+[".local/bin/zoxide"]
+    type = "archive-file"
+    url = "{{ gitHubLatestReleaseAssetURL "ajeetdsouza/zoxide" (printf "zoxide-*-%s-unknown-linux-musl.tar.gz" $rust) }}"
+    path = "zoxide"
+    executable = true
+    refreshPeriod = "168h"
+
+[".local/bin/atuin"]
+    type = "archive-file"
+    url = "{{ printf $latest "atuinsh/atuin" (printf "atuin-%s-unknown-linux-musl.tar.gz" $rust) }}"
+    path = "atuin-{{ $rust }}-unknown-linux-musl/atuin"
+    executable = true
+    refreshPeriod = "168h"
+
+[".local/bin/fnm"]
+    type = "archive-file"
+    url = "{{ printf $latest "Schniz/fnm" (ternary "fnm-linux.zip" "fnm-arm64.zip" (eq $go "amd64")) }}"
+    path = "fnm"
+    executable = true
+    refreshPeriod = "168h"
+
+[".local/bin/fzf"]
+    type = "archive-file"
+    url = "{{ gitHubLatestReleaseAssetURL "junegunn/fzf" (printf "fzf-*-linux_%s.tar.gz" $go) }}"
+    path = "fzf"
+    executable = true
+    refreshPeriod = "168h"
+
+{{- range list "uv" "uvx" }}
+
+[".local/bin/{{ . }}"]
+    type = "archive-file"
+    url = "{{ printf $latest "astral-sh/uv" (printf "uv-%s-unknown-linux-musl.tar.gz" $rust) }}"
+    path = "uv-{{ $rust }}-unknown-linux-musl/{{ . }}"
+    executable = true
+    refreshPeriod = "168h"
+{{- end }}
+
+{{- /* Xray binary and its geo data from the same (cached) zip. */}}
+{{- $xray := ternary "Xray-linux-64.zip" "Xray-linux-arm64-v8a.zip" (eq $go "amd64") }}
+{{- range list "xray" "geoip.dat" "geosite.dat" }}
+
+[".local/{{ if eq . "xray" }}bin{{ else }}share/xray{{ end }}/{{ . }}"]
+    type = "archive-file"
+    url = "{{ printf $latest "XTLS/Xray-core" $xray }}"
+    path = "{{ . }}"
+    executable = {{ eq . "xray" }}
+    refreshPeriod = "168h"
+{{- end }}
+{{- end }}

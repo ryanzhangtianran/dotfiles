@@ -1,0 +1,23 @@
+{{- /* Machine class, detected once at `chezmoi init`:
+       mac     macOS, zsh + Homebrew
+       cci     Qianhai CCI container (hostname app-<uid>-<replicaset>-<pod>)
+       desktop Linux with a graphical session installed
+       server  any other Linux */ -}}
+{{- $machine := "server" -}}
+{{- if eq .chezmoi.os "darwin" -}}
+{{-   $machine = "mac" -}}
+{{- else if hasPrefix "app-" .chezmoi.hostname -}}
+{{-   $machine = "cci" -}}
+{{- else if or (stat "/usr/share/xsessions") (stat "/usr/share/wayland-sessions") -}}
+{{-   $machine = "desktop" -}}
+{{- end -}}
+# New directories and files get 755/644, not 775/664.
+umask = 0o022
+
+[data]
+    machine = {{ $machine | quote }}
+
+[gitHub]
+    # Cache GitHub API lookups (latest release versions) for a week,
+    # matching refreshPeriod in .chezmoiexternal.toml.
+    refreshPeriod = "168h"

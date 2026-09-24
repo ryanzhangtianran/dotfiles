@@ -1,4 +1,4 @@
-# ~/.config/bash/30-conda.bash
+# ~/.config/bash/20-conda.bash
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!

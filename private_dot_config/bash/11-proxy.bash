@@ -1,4 +1,8 @@
-# ~/.config/bash/20-functions.bash
+# ~/.config/bash/11-proxy.bash
+
+# Shared proxy on 50800 for `proxy on` and `px`. Servers only; see .chezmoiignore.
+export PROXY_HOST='127.0.0.1'
+export PROXY_PORT='50800'
 
 proxy() {
 
@@ -29,3 +33,7 @@ proxy() {
             ;;
     esac
 }
+
+# Proxy for one command only: `px git clone ...`. Trailing space lets the
+# next word expand as an alias too (e.g. `px pip install ...`).
+alias px='http_proxy=http://$PROXY_HOST:$PROXY_PORT https_proxy=http://$PROXY_HOST:$PROXY_PORT ALL_PROXY=socks5h://$PROXY_HOST:$PROXY_PORT '

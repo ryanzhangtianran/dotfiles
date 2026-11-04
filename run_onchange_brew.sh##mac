@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Homebrew formulae on macOS: what the zsh modules use plus everyday tools. Tools that also exist
+# on Linux (atuin, fnm, fzf, starship, uv, zoxide) come from .homie.toml into ~/.local/bin instead.
+# Reruns only when this list changes.
+set -Eeuo pipefail
+
+for brew in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+    [[ -x "$brew" ]] && eval "$("$brew" shellenv)" && break
+done
+if ! command -v brew >/dev/null 2>&1; then
+    echo '[dotfiles] Homebrew is missing; install it from https://brew.sh first, then run homie apply.'
+    exit 1
+fi
+
+brew bundle --file=- <<'BREWFILE'
+# zsh modules (~/.config/zsh)
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+brew "zsh-completions"
+brew "carapace"
+brew "eza"
+brew "bat"
+brew "neovim"
+brew "go"
+brew "ruby@3.3"
+
+# everyday tools
+brew "btop"
+brew "fd"
+brew "gh"
+brew "git"
+brew "git-delta"
+brew "git-xet"
+brew "jq"
+brew "lazygit"
+brew "ripgrep"
+brew "tree-sitter-cli"
+brew "zellij"
+BREWFILE

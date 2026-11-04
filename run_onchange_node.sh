@@ -1,12 +1,8 @@
 #!/usr/bin/env bash
-# Runs after externals (Linux) and Homebrew (mac), so fnm exists.
+# Runs after packages, so fnm is in ~/.local/bin on every machine.
 set -Eeuo pipefail
 
-{{ if eq .machine "mac" -}}
-fnm=fnm
-{{- else -}}
 fnm="$HOME/.local/bin/fnm"
-{{- end }}
 if ! "$fnm" list | grep -q ' v[0-9]'; then
     echo '[dotfiles] Installing the latest Node LTS with fnm.'
     "$fnm" install --lts

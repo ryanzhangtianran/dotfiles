@@ -1,0 +1,27 @@
+# homie config: https://github.com/ryanzhangtianran/homie
+#
+# Machine class (selects ##variants), detected once; override with `homie machine <name>`:
+#   mac     macOS
+#   cci     Qianhai CCI container (hostname app-<uid>-<replicaset>-<pod>)
+#   desktop Linux with a graphical session installed
+#   server  any other Linux
+machine_detect = '''
+case "$(uname -s)/$(hostname)" in
+    Darwin/*) echo mac ;;
+    */app-*)  echo cci ;;
+    *) if [ -e /usr/share/xsessions ] || [ -e /usr/share/wayland-sessions ]; then echo desktop; else echo server; fi ;;
+esac
+'''
+
+# One line per app: "gh:owner/repo" takes the latest GitHub release for this OS/arch into
+# ~/.local/bin (mac too, no Homebrew); anything else is an install command.
+# Claude Code and Codex use their official user-level installers and update themselves.
+[packages]
+starship = "gh:starship/starship"
+zoxide   = "gh:ajeetdsouza/zoxide"
+atuin    = "gh:atuinsh/atuin"
+fnm      = "gh:Schniz/fnm"
+fzf      = "gh:junegunn/fzf"
+uv       = "gh:astral-sh/uv"
+claude   = "curl -fsSL https://claude.ai/install.sh | bash"
+codex    = "curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh"

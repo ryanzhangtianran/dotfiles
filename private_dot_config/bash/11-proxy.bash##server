@@ -1,6 +1,6 @@
 # ~/.config/bash/11-proxy.bash
 
-# Shared proxy on 50800 for `proxy on` and `px`. Servers only; see .chezmoiignore.
+# Shared proxy on 50800 for `proxy on` and `px`. Servers only (##server).
 export PROXY_HOST='127.0.0.1'
 export PROXY_PORT='50800'
 

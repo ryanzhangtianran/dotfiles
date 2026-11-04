@@ -1,17 +1,10 @@
-# ~/.bashrc
-
 case $- in
     *i*) ;;
       *) return ;;
 esac
 
-# ~/.config/bash/NN-name.bash, loaded in order. Tens digit is the group:
-#   0x  base          env, completion
-#   1x  user          aliases
-#   2x  runtimes      conda, fnm
-#   3x  tools         fzf, zoxide, atuin
-#   5x  per-machine   unmanaged files for local projects (e.g. 50-geniesim)
-#   9x  last          prompt (starship)
+# Modules in name order: 0x env, 1x aliases, 2x runtimes, 3x tools, 9x prompt.
+# Files homie doesn't manage can be dropped in too (e.g. 50-project.bash).
 for f in "$HOME"/.config/bash/*.bash; do
     [[ -r "$f" ]] && source "$f"
 done

@@ -7,7 +7,7 @@ esac
 
 # ~/.config/bash/NN-name.bash, loaded in order. Tens digit is the group:
 #   0x  base          env, completion
-#   1x  user          aliases, proxy, agents
+#   1x  user          aliases
 #   2x  runtimes      conda, fnm
 #   3x  tools         fzf, zoxide, atuin
 #   5x  per-machine   unmanaged files for local projects (e.g. 50-geniesim)

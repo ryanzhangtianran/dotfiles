@@ -1,15 +1,4 @@
 # homie config: https://github.com/ryanzhangtianran/homie (Linux only)
-#
-# Machine class (selects ##variants), detected once; override with `homie machine <name>`:
-#   cci     Qianhai CCI container (hostname app-<uid>-<replicaset>-<pod>)
-#   desktop Linux with a graphical session installed
-#   server  any other Linux
-machine_detect = '''
-case "$(hostname)" in
-    app-*) echo cci ;;
-    *) if [ -e /usr/share/xsessions ] || [ -e /usr/share/wayland-sessions ]; then echo desktop; else echo server; fi ;;
-esac
-'''
 
 # One line per app: "gh:owner/repo" takes the latest GitHub release for this OS/arch into
 # ~/.local/bin; anything else is an install command.

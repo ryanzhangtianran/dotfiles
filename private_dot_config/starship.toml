@@ -23,7 +23,6 @@ $haskell\
 $python\
 [](fg:green bg:sapphire)\
 $conda\
-${env_var.proxy}\
 [](fg:sapphire bg:lavender)\
 $time\
 [ ](fg:lavender)\
@@ -149,10 +148,6 @@ symbol = "  "
 style = "fg:crust bg:sapphire"
 format = '[$symbol$environment ]($style)'
 ignore_base = false
-
-[env_var.proxy]
-variable = "http_proxy"
-format = '[](fg:sapphire bg:teal)[  ](fg:crust bg:teal)[](fg:teal bg:sapphire)'
 
 [time]
 disabled = false

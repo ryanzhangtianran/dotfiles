@@ -1,5 +1,6 @@
 # "gh:owner/repo" = latest GitHub release into ~/.local/bin; anything else = install command.
 [packages]
+go = 'v=$(curl -fsSL "https://go.dev/VERSION?m=text" | head -1) && cd ~/.local && rm -rf go.new && mkdir go.new && curl -fsSL "https://go.dev/dl/$v.$(uname -s | tr A-Z a-z)-$(uname -m | sed "s/x86_64/amd64/;s/aarch64/arm64/").tar.gz" | tar -xz -C go.new && rm -rf go && mv go.new/go go && rmdir go.new && ln -sf ~/.local/go/bin/go ~/.local/go/bin/gofmt ~/.local/bin/ && ~/.local/bin/go env -w GOBIN=$HOME/.local/bin'
 starship = "gh:starship/starship"
 zoxide   = "gh:ajeetdsouza/zoxide"
 atuin    = "gh:atuinsh/atuin"
